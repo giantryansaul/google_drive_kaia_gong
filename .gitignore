@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+
+# Secrets
+.env
+
+# Directories
+dest
+data
+logs
+
+# Google API
+client_secrets.json
+credentials.json

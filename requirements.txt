@@ -1,0 +1,5 @@
+requests
+PyDrive2
+
+# Testing
+fastapi
