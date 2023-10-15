@@ -3,6 +3,12 @@
 
 ## Setup
 
+### Install Python Requirements
+
+
+### Install ffmpeg
+
+
 ### Google Auth Setup
 
 - [Documentation](https://docs.iterative.ai/PyDrive2/quickstart/#authentication)
