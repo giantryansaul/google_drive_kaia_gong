@@ -3,3 +3,5 @@ PyDrive2
 
 # Testing
 fastapi
+uvicorn
+python-multipart

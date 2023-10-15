@@ -26,7 +26,8 @@ def configure_logging():
 
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(threadName)s: %(message)s')
 
-    file_handler = logging.FileHandler(os.path.join(LOG_DIR, datetime.datetime.now().strftime("process_files_%Y%m%d%H%M%S.log")))
+    log_file = os.path.join(LOG_DIR, datetime.datetime.now().strftime("process_files_%Y%m%d%H%M%S.log"))
+    file_handler = logging.FileHandler(log_file)
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
@@ -74,9 +75,13 @@ class InvalidVideoFileError(Exception):
     pass
 
 def get_video_length(filename):
-    result = subprocess.check_output(
+    try:
+        result = subprocess.check_output(
             f'ffprobe -v quiet -show_streams -select_streams v:0 -of json "{filename}"',
             shell=True).decode()
+    except subprocess.CalledProcessError:
+        raise Exception('ffprobe failed to run, please install ffmpeg on your system.')
+    
     try:
         fields = json.loads(result)['streams'][0]
         duration = fields['duration']
@@ -182,13 +187,16 @@ def get_user_id_if_exists(name):
 def create_party_users(participant_names):
     primary_user_id = ""
     party_users = []
+    user_id_map = set()
     for name in participant_names:
         user_id = get_user_id_if_exists(name)
         primary_user_id = user_id if user_id else primary_user_id
         user_object = {"name": name}
         if user_id:
             user_object["userId"] = user_id
-        party_users.append(user_object)
+        if user_id not in user_id_map:
+            party_users.append(user_object)
+        user_id_map.add(user_id)
     # If there is no primary user, add the default user
     if not primary_user_id:
         party_users.append({"name": DEFAULT_USER_NAME, "userId": DEFAULT_USER_ID})
@@ -305,7 +313,7 @@ def main():
     try:
         # Load the file queue from the saved file list
         for file_entry in file_list:
-            destination = f"dest/{file_entry['title']}"
+            destination = os.path.join(DEST_DIR, file_entry['title'])
             file_queue.put((file_entry['id'], file_entry['title'], destination, 0))
 
         for _ in range(NUM_THREADS):

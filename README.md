@@ -54,5 +54,7 @@ python3 process_files.py
 This can be used for uploading data to a mock Gong server.
 
 ```bash
-python3.10 -m uvicorn test_server:app --reload
+python3.10 -m uvicorn mock_gong_server:app --reload
 ```
+
+Set `GONG_API_URL = 'http://localhost:8000'`
